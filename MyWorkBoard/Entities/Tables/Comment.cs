@@ -1,4 +1,4 @@
-﻿namespace MyWorkBoard.Entities
+﻿namespace MyWorkBoard.Entities.Tables
 {
     public class Comment
     {
@@ -9,5 +9,9 @@
 
         // Nie każdy komentarz musi być zedytowany
         public DateTime? UpdatedDate { get; set; }
+
+        // Relacja
+        public WorkItem WorkItem { get; set; }
+        public int WorkItemId { get; set; }
     }
 }

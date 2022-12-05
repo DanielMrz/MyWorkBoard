@@ -1,4 +1,4 @@
-﻿namespace MyWorkBoard.Entities
+﻿namespace MyWorkBoard.Entities.Tables
 {
     public class Address
     {
@@ -7,5 +7,10 @@
         public string City { get; set; }
         public string Street { get; set; }
         public string PostalCode { get; set; }
+
+        // Relacje 1-1 gdzie kluczem głównym jest Id w tabeli user
+        // Kluczem obcym jest id w address
+        public User User { get; set; }
+        public Guid UserId { get; set; }
     }
 }

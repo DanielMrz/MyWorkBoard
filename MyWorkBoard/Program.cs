@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using MyWorkBoard.Entities;
+using MyWorkBoard.Entities.Model;
 
 
 
