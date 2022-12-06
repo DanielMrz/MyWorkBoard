@@ -11,8 +11,8 @@ builder.Services.AddSwaggerGen();
 
 
 // 2 sposób po³¹czenia z baz¹ danych
-// nadpisanie definicji konfiguracji dbcontext na poziomie kontenera dependency injection
-// generyczny parametr przyjmuje typ danego dbcontextu
+// Nadpisanie definicji konfiguracji dbcontext na poziomie kontenera dependency injection
+// Generyczny parametr przyjmuje typ danego dbcontextu
 builder.Services.AddDbContext<MyBoardsContext>(
         option => option.UseSqlServer(builder.Configuration.GetConnectionString("MyWorkBoardsConnectionString")));
 
@@ -26,10 +26,19 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+// Automatyzacja migracji
+// 1. Stworzenie obiektu. W kontenerze DI dbcontext jest rejestrowany z d³ugoœci¹ ¿ycia scope
+var scope = app.Services.CreateScope();
+var dbContext = scope.ServiceProvider.GetService<MyBoardsContext>();
+
+var pendingMigrations = dbContext.Database.GetPendingMigrations();
+if (pendingMigrations.Any())
+{
+    dbContext.Database.Migrate();
+}
+
+
 app.Run();
-
-
-
 
 // ¯eby odtworzyæ bazê danych SQL w C# trzeba utworzyæ klasy które bêd¹ reprezentowa³y definicjê
 // konkretnych tabel (co najmniej 5 wed³ug diagramu). Bêd¹ znajdowaæ siê w oddzielnym folderze Entities
