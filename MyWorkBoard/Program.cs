@@ -1,15 +1,21 @@
 using Microsoft.EntityFrameworkCore;
 using MyWorkBoard.Entities.Model;
 
-
-
-// Bazowy projekt do któego dodam encje i konfiguracje baz danych przez entity
 // Tworzymy aplikacje web
 var builder = WebApplication.CreateBuilder(args);
 
 // Konfiguracja rozszerzenia swagera
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+
+
+// 2 sposób po³¹czenia z baz¹ danych
+// nadpisanie definicji konfiguracji dbcontext na poziomie kontenera dependency injection
+// generyczny parametr przyjmuje typ danego dbcontextu
+builder.Services.AddDbContext<MyBoardsContext>(
+        option => option.UseSqlServer(builder.Configuration.GetConnectionString("MyWorkBoardsConnectionString")));
+
 
 var app = builder.Build();
 
@@ -21,16 +27,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.Run();
-
-// 2 sposób po³¹czenia z baz¹ danych
-// nadpisanie definicji konfiguracji dbcontext na poziomie kontenera dependency injection
-// generyczny parametr przyjmuje typ danego dbcontextu
-builder.Services.AddDbContext<MyBoardsContext>(
-        option => option.UseSqlServer(builder.Configuration.GetConnectionString("MyWorkBoardConnectionString"))
-    ); ;
-
-
-
 
 
 

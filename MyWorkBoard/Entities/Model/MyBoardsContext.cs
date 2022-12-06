@@ -11,8 +11,8 @@ namespace MyWorkBoard.Entities.Model
 
     public class MyBoardsContext : DbContext
     {
-        // Dodanie publicznego konstruktora do któego przekażę zmienną typu DbContextOptions dla klasy MyBoardsCOntext
-        // Dzięki temu konstruktorowie kontener dependency injection będzie w stanie skonfigurować klasę MyBoardsContext
+        // Dodanie publicznego konstruktora, do którego przekażę zmienną typu DbContextOptions dla klasy MyBoardsContext
+        // Dzięki temu konstruktor kontener dependency injection będzie w stanie skonfigurować klasę MyBoardsContext
         public MyBoardsContext(DbContextOptions<MyBoardsContext> options) : base(options)
         {
 
@@ -55,7 +55,7 @@ namespace MyWorkBoard.Entities.Model
             modelBuilder.Entity<WorkItem>(eb => // eb = entity builder
             {
                 // eb.Property(x => x.State).IsRequired();
-                eb.Property(x => x.Area).HasColumnType("varchar(200");
+                eb.Property(x => x.Area).HasColumnType("varchar(200)");
                 eb.Property(x => x.IterationPath).HasColumnName("Iteration_Path");
                 eb.Property(x => x.Priority).HasDefaultValue(1);
 
@@ -65,7 +65,7 @@ namespace MyWorkBoard.Entities.Model
                     .HasForeignKey(y => y.WorkItemId);
 
                 eb.HasOne(x => x.Author)
-                    .WithMany(y => WorkItems)
+                    .WithMany(y => y.WorkItems)
                     .HasForeignKey(y => y.AuthorId);
 
                 eb.HasMany(x => x.Tags)
@@ -105,7 +105,7 @@ namespace MyWorkBoard.Entities.Model
             modelBuilder.Entity<User>()
                 .HasOne(x => x.Address)
                 .WithOne(y => y.User)
-                .HasForeignKey<Address>(y => y.User.Id);
+                .HasForeignKey<Address>(y => y.UserId);
 
             // Tworzenie złożonego klucza poprzez stworzenie typu anonimowego
             // Mając taką konfiguracje w encji tag jak i work item nalezy dodać referencje do tego typu
@@ -114,7 +114,7 @@ namespace MyWorkBoard.Entities.Model
 
             modelBuilder.Entity<State>(eb =>
             {
-                eb.Property(x => x.StateValue).IsRequired().HasMaxLength(50);
+                eb.Property(x => x.StateValue).IsRequired().HasMaxLength(60);
             });
 
         }
