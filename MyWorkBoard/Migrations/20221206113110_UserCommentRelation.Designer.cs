@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyWorkBoard.Entities.Model;
 
@@ -11,9 +12,11 @@ using MyWorkBoard.Entities.Model;
 namespace MyWorkBoard.Migrations
 {
     [DbContext(typeof(MyBoardsContext))]
-    partial class MyBoardsContextModelSnapshot : ModelSnapshot
+    [Migration("20221206113110_UserCommentRelation")]
+    partial class UserCommentRelation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -122,33 +125,6 @@ namespace MyWorkBoard.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("States");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            StateValue = "To Do"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            StateValue = "Doing"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            StateValue = "Done"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            StateValue = "On Hold"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            StateValue = "Rejected"
-                        });
                 });
 
             modelBuilder.Entity("MyWorkBoard.Entities.Tables.Tag", b =>
@@ -165,33 +141,6 @@ namespace MyWorkBoard.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Tags");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            TagValue = "Web"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            TagValue = "UI"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            TagValue = "Desktop"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            TagValue = "API"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            TagValue = "Service"
-                        });
                 });
 
             modelBuilder.Entity("MyWorkBoard.Entities.Tables.User", b =>

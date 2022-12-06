@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using MyWorkBoard.Entities.Model;
+using MyWorkBoard.Entities.Tables;
 
 // Tworzymy aplikacje web
 var builder = WebApplication.CreateBuilder(args);
@@ -36,6 +37,54 @@ if (pendingMigrations.Any())
 {
     dbContext.Database.Migrate();
 }
+
+// Zmienna users jest list¹ u¿ytkowników, którzy znajduj¹ siê w bazie danych
+var users = dbContext.Users.ToList(); 
+if (!users.Any())
+{
+    var user1 = new User()
+    {
+        FirstName = "User",
+        LastName = "One",
+        Email = "example@gmail.com",
+        Address = new Address()
+        {
+            Country = "Poland",
+            City = "Warszawa",
+            Street = "W³oszczowa 34",
+            PostalCode ="55-105"
+        }
+    };
+
+    var user2 = new User()
+    {
+        FirstName = "User",
+        LastName = "Two",
+        Email = "elpmaxe@gmail.com",
+        Address = new Address()
+        {
+            Country = "England",
+            City = "London",
+            Street = "Baker Street 66",
+            PostalCode = "102-305"
+        }
+    };
+
+    dbContext.Users.AddRange(user1, user2);
+    dbContext.SaveChanges();
+}
+
+// Wstrzykiwanie MyBoardsContext (jest zarejstrowany wyzej) do endpointu
+app.MapGet("data", (MyBoardsContext db) =>
+    {
+        // Najprostsza implementacja metody pobrania tagów z bazy danych i wsadzenia ich do listy
+        //var tags = db.Tags.ToList();
+        //return tags;
+
+        var epic = db.Epics.First();
+        var user = db.Users.First(u => u.LastName == "Two");
+        return new { epic, user };
+    });
 
 
 app.Run();

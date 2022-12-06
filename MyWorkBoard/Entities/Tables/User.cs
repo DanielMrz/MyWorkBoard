@@ -11,5 +11,7 @@
         public Address Address { get; set; }
         // Każdy twórca może mieć wiele workitemów
         public List<WorkItem> WorkItems { get; set; } = new List<WorkItem>();
+        // Każdy twórca może zamieszczać wiele komentarzy
+        public List<Comment> Comments { get; set; } = new List<Comment>();
     }
 }

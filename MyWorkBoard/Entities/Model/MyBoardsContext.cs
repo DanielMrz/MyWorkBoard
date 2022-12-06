@@ -96,6 +96,11 @@ namespace MyWorkBoard.Entities.Model
                 eb.Property(x => x.CreatedDate).HasDefaultValueSql("getutcdate()");
                 // Entity ustawia wartość
                 eb.Property(x => x.UpdatedDate).ValueGeneratedOnUpdate();
+                // Każdy komentarz ma jednego autora. Autor może mieć wiele komentarzy
+                eb.HasOne(x => x.Author)
+                    .WithMany(y => y.Comments)
+                    .HasForeignKey(x => x.AuthorId)
+                    .OnDelete(DeleteBehavior.NoAction); // Aby nie było kaskadowego usuwania (jesli usuwamy autora to komentarze zostają)
             });
 
             // Konfiguracja relacji 1 do 1 w entity
@@ -117,6 +122,20 @@ namespace MyWorkBoard.Entities.Model
                 eb.Property(x => x.StateValue).IsRequired().HasMaxLength(60);
             });
 
+            // Określamy jakie dane początkowe powinna mieć konkretna tabela
+            modelBuilder.Entity<State>()
+                .HasData(new State() { Id = 1, StateValue = "To Do" },
+                         new State() { Id = 2, StateValue = "Doing" },
+                         new State() { Id = 3, StateValue = "Done" },
+                         new State() { Id = 4, StateValue = "On Hold" },
+                         new State() { Id = 5, StateValue = "Rejected" });
+
+            modelBuilder.Entity<Tag>()
+                .HasData(new Tag() { Id = 1, TagValue = "Web" },
+                         new Tag() { Id = 2, TagValue = "UI" },
+                         new Tag() { Id = 3, TagValue = "Desktop" },
+                         new Tag() { Id = 4, TagValue = "API" },
+                         new Tag() { Id = 5, TagValue = "Service" });
         }
 
         // konfiguracja konkretnych encji bazy danych np do tworzenia złożonych kluczów głównych
