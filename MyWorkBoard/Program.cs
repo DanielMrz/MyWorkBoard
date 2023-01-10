@@ -132,14 +132,16 @@ app.MapGet("data", async (MyBoardsContext db) =>
 
         //return new { userDetails, commentCount = topAuthor.Count };
 
-        var user = await db.Users
-            // metoda include sprawi, ¿e automatycznie do obiektu zostan¹ do³¹czone powi¹zane dane a po stronie sql bêdzie jedno zapytanie z join (szybsze)
-            // w postaci lambdy wska¿emy jak¹ w³aœciwoœæ chcemy do³¹czyæ do encji user (pobranie komentarzy u¿ytkownika)
-            .Include(u => u.Comments).ThenInclude(c => c.WorkItem)
-            .Include(u => u.Address)
-            .FirstAsync(u => u.Id == Guid.Parse("91106229-4E24-4C9C-47C3-08DA10AB0E20"));
+        //var user = await db.Users
+        //    // metoda include sprawi, ¿e automatycznie do obiektu zostan¹ do³¹czone powi¹zane dane a po stronie sql bêdzie jedno zapytanie z join (szybsze)
+        //    // w postaci lambdy wska¿emy jak¹ w³aœciwoœæ chcemy do³¹czyæ do encji user (pobranie komentarzy u¿ytkownika)
+        //    .Include(u => u.Comments).ThenInclude(c => c.WorkItem)
+        //    .Include(u => u.Address)
+        //    .FirstAsync(u => u.Id == Guid.Parse("91106229-4E24-4C9C-47C3-08DA10AB0E20"));
 
-        return user;
+        var topAuthors = db.ViewTopAuthors.ToList();
+
+        return topAuthors;
     });
 
 // 1 parametr to œcie¿ka pod jak¹ ten endpoint bêdzie dostêpny, 2 parametr to delegata, która obs³u¿y takie zapytanie 

@@ -32,6 +32,9 @@ namespace MyWorkBoard.Entities.Model
 
         public DbSet<WorkItemTag> WorkItemTag { get; set; }
 
+        // Stworzenie dbseta dzięki, któremu będziemy mogli się dostać do naszego widoku
+        public DbSet<TopAuthor> ViewTopAuthors { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // 
@@ -138,6 +141,14 @@ namespace MyWorkBoard.Entities.Model
                          new Tag() { Id = 3, TagValue = "Desktop" },
                          new Tag() { Id = 4, TagValue = "API" },
                          new Tag() { Id = 5, TagValue = "Service" });
+
+            modelBuilder.Entity<TopAuthor>(eb =>
+            {
+                // Stworzenie widoku bazodanowego (po stronie bazy danych)
+                // model dla konkretnego widoku, który nie ma swojego klucza (trzeba utworzyć migracje)
+                eb.ToView("View_TopAuthors");
+                eb.HasNoKey();
+            });
         }
 
         // konfiguracja konkretnych encji bazy danych np do tworzenia złożonych kluczów głównych
