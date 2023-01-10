@@ -1,4 +1,6 @@
-﻿namespace MyWorkBoard.Entities.Tables
+﻿using Microsoft.EntityFrameworkCore;
+
+namespace MyWorkBoard.Entities.Tables
 {
     public class Address
     {
@@ -12,5 +14,15 @@
         // Kluczem obcym jest id w address
         public User User { get; set; }
         public Guid UserId { get; set; }
+
+        public Coordinate Coordinate { get; set; }
+    }
+
+    // model który będzie zawarty w istniejącej tabeli
+    [Owned]
+    public class Coordinate
+    {
+        public decimal? Longitude { get; set; }
+        public decimal? Latitude { get; set; }
     }
 }
