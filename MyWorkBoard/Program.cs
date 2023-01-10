@@ -1,6 +1,8 @@
+using Microsoft.AspNetCore.Http.Json;
 using Microsoft.EntityFrameworkCore;
 using MyWorkBoard.Entities.Model;
 using MyWorkBoard.Entities.Tables;
+using System.Text.Json.Serialization;
 
 // Tworzymy aplikacje web
 var builder = WebApplication.CreateBuilder(args);
@@ -8,6 +10,13 @@ var builder = WebApplication.CreateBuilder(args);
 // Konfiguracja rozszerzenia swagera
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// Taka konfiguracja spowoduje, ¿e podczas zwracania rezultatu z tego APi to mimoo tego, ¿e w obiekcie w programie bêd¹ zapêtlone referencje
+// to serializator je zigonruje. Problem z powi¹zanymi encjami z entity framework
+builder.Services.Configure<JsonOptions>(options => {
+    options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+});
+    
 
 // 2 sposób po³¹czenia z baz¹ danych
 // Nadpisanie definicji konfiguracji dbcontext na poziomie kontenera dependency injection
@@ -109,19 +118,28 @@ app.MapGet("data", async (MyBoardsContext db) =>
         //.ToListAsync();
         //return selectedEpics;
 
-        var authorsCommentCounts = await db.Comments
-            .GroupBy(g => g.AuthorId)
-            .Select(s => new { s.Key, Count = s.Count() })
-            .ToListAsync();
+        //var authorsCommentCounts = await db.Comments
+        //    .GroupBy(g => g.AuthorId)
+        //    .Select(s => new { s.Key, Count = s.Count() })
+        //    .ToListAsync();
 
-        // Informacje o liczbie komentarzy
-        var topAuthor =  authorsCommentCounts
-            .First(f => f.Count == authorsCommentCounts.Max(m => m.Count));
+        //// Informacje o liczbie komentarzy
+        //var topAuthor = authorsCommentCounts
+        //    .First(f => f.Count == authorsCommentCounts.Max(m => m.Count));
 
-        // Szczegó³y o danym u¿ytkowniku
-        var userDetails = db.Users.First(f => f.Id == topAuthor.Key);
+        //// Szczegó³y o danym u¿ytkowniku
+        //var userDetails = db.Users.First(f => f.Id == topAuthor.Key);
 
-        return new { userDetails, commentCount = topAuthor.Count };
+        //return new { userDetails, commentCount = topAuthor.Count };
+
+        var user = await db.Users
+            // metoda include sprawi, ¿e automatycznie do obiektu zostan¹ do³¹czone powi¹zane dane a po stronie sql bêdzie jedno zapytanie z join (szybsze)
+            // w postaci lambdy wska¿emy jak¹ w³aœciwoœæ chcemy do³¹czyæ do encji user (pobranie komentarzy u¿ytkownika)
+            .Include(u => u.Comments).ThenInclude(c => c.WorkItem)
+            .Include(u => u.Address)
+            .FirstAsync(u => u.Id == Guid.Parse("91106229-4E24-4C9C-47C3-08DA10AB0E20"));
+
+        return user;
     });
 
 // 1 parametr to œcie¿ka pod jak¹ ten endpoint bêdzie dostêpny, 2 parametr to delegata, która obs³u¿y takie zapytanie 
@@ -144,20 +162,55 @@ app.MapPost("update", async (MyBoardsContext db) =>
 
 app.MapPost("create", async (MyBoardsContext db) =>
 {
-    Tag tag = new Tag()
+    //Tag mvctag = new Tag()
+    //{
+    //    TagValue = "MVC"
+    //};
+
+    //Tag asptag = new Tag()
+    //{
+    //    TagValue = "ASP"
+    //};
+
+    //var tags = new List<Tag>() { mvctag, asptag };
+    //await db.Tags.AddRangeAsync(tags);
+    //await db.SaveChangesAsync();
+
+    //return tags;
+
+    // Utworzenie wierszy, które s¹ powi¹zane relacj¹
+    var adress = new Address()
     {
-        TagValue = "EF"
+        Id = Guid.Parse("91106229-4E24-4C9C-47C3-08DA10AB0E20"),
+        City = "Kraków",
+        Country = "Poland",
+        Street ="D³uga"
     };
 
-    // 1 sposob
-    // await db.AddAsync(tag);
+    var user = new User()
+    {
+        Email = "adduser22@gmail.com",
+        FirstName = "Test",
+        LastName = "User22",
+        Address = adress,
+    };
 
-    // 2 sposob
-    await db.Tags.AddAsync(tag);
-
+    // Entity ogarnie, ¿e user jest powi¹zany z adresem i niejawnie doda do bazy danych
+    db.Users.Add(user);
     await db.SaveChangesAsync();
 
-    return tag;
+    return user;
+});
+
+app.MapPost("delete", async (MyBoardsContext db) =>
+{
+    var workitemTagsResult = await db.WorkItemTag.Where(w => w.WorkItemId == 12).ToListAsync();
+    db.WorkItemTag.RemoveRange(workitemTagsResult);
+
+    var workItemResult = await db.WorkItems.FirstAsync(w => w.Id == 5);
+    db.RemoveRange(workItemResult);
+
+    await db.SaveChangesAsync();
 });
 
 app.Run();

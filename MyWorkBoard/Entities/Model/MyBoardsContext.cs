@@ -30,6 +30,8 @@ namespace MyWorkBoard.Entities.Model
         public DbSet<Address> Addresses { get; set; }
         public DbSet<State> States { get; set; }
 
+        public DbSet<WorkItemTag> WorkItemTag { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // 
