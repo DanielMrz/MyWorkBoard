@@ -12,6 +12,9 @@ namespace MyWorkBoard.Entities.Config
             builder.HasOne(x => x.Address)                  // Wskażemy do jakiej referencji ma on relacje (hasone)
                 .WithOne(y => y.User)                       // i od strony adresu mamy tylko 1 usera
                 .HasForeignKey<Address>(y => y.UserId);     // wskażę w jakiej kolumnie znajduje się klucz obcy w tabeli User (w encji Address i wartosc UserId)
+
+            builder.HasIndex(u => u.Email);
+            // builder.HasIndex(u => new { u.Email, u.FirstName });
         }
     }
 }
