@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.EntityFrameworkCore;
 using MyWorkBoard.Entities.Model;
+using MyWorkBoard.Entities.Model.Dto;
 using MyWorkBoard.Entities.Tables;
+using System.Linq.Expressions;
 using System.Text.Json.Serialization;
 
 // Tworzymy aplikacje web
@@ -22,7 +24,10 @@ builder.Services.Configure<JsonOptions>(options => {
 // Nadpisanie definicji konfiguracji dbcontext na poziomie kontenera dependency injection
 // Generyczny parametr przyjmuje typ danego dbcontextu
 builder.Services.AddDbContext<MyBoardsContext>(
-        option => option.UseSqlServer(builder.Configuration.GetConnectionString("MyWorkBoardsConnectionString")));
+        option => option
+        .UseLazyLoadingProxies(true)
+        .UseSqlServer(builder.Configuration.GetConnectionString("MyWorkBoardsConnectionString"))
+);
 
 var app = builder.Build();
 
@@ -79,6 +84,61 @@ if (!users.Any())
     dbContext.Users.AddRange(user1, user2);
     dbContext.SaveChanges();
 }
+
+
+app.MapGet("pagination", async (MyBoardsContext db) =>
+{
+    // Informacje od u¿ytkownika
+    // 1. Filter (wartoœæ któr¹ poda u¿ytkownik przez input do filtrowania)
+    // 2. Pod stringiem mo¿e ustawiæ informacje o kolumnie po której chcia³by sortowaæ
+    // 3. Czy sortowanie jest malej¹ce czy rosn¹ce
+    // 4. Numer strony
+    // 5. Liczba wyników, któr¹ chce wyœwietliæ u¿ytkownik
+
+    var filter = "a";
+    string sortBy = "LastName";
+    bool sortByDescending = false;
+    int pageNumber = 1; 
+    int pageSize = 10;
+
+    var query = db.Users
+        .Where(u => filter == null || (u.Email.ToLower().Contains(filter.ToLower()) ||
+                                       u.FirstName.ToLower().Contains(filter.ToLower()) ||
+                                       u.LastName.ToLower().Contains(filter.ToLower())));
+
+    // Ca³kowita liczba elementów spe³niaj¹cych filtrowanie
+    var totalCount = query.Count();
+
+    // Sortowanie
+    if(sortBy != null)
+    {
+        // Przyk³adowa ekspresja
+        // Expression<Func<User, object>> sortByExpression = user => user.Email;
+
+        // S³ownik dla typu string dla typu expression func user object
+        // Okreœla po jakich kolumnach mo¿emy sortowaæ
+        // W tym s³owniku kluczem by³a nazwa kloumny a wartoœci¹ by³o wyra¿enie czyli expression dla typu Func typu User i typu Object
+        // które jest prawid³owym parametrem zarówno dla metody orderBy i orderByDescending
+        var columnSelector = new Dictionary<string, Expression<Func<User, object>>>
+        {
+            { nameof(User.Email), user => user.Email },
+            { nameof(User.FirstName), user => user.FirstName },
+            { nameof(User.LastName), user => user.LastName }
+        };
+
+        var sortByExpression = columnSelector[sortBy];
+        query = sortByDescending
+            ? query.OrderByDescending(sortByExpression)
+            : query.OrderBy(sortByExpression);
+    }
+
+    var result = query.Skip(pageSize * (pageNumber - 1))
+                 .Take(pageSize)
+                 .ToList();
+
+    var pagedResult = new PagedResult<User>(result, totalCount, pageSize, pageNumber);
+    return pagedResult;
+});
 
 // Wstrzykiwanie MyBoardsContext (jest zarejstrowany wyzej) do endpointu. Mapp get -> pobieranie
 app.MapGet("data", async (MyBoardsContext db) =>
@@ -143,7 +203,6 @@ app.MapGet("data", async (MyBoardsContext db) =>
 
         return topAuthors;
     });
-
 // 1 parametr to œcie¿ka pod jak¹ ten endpoint bêdzie dostêpny, 2 parametr to delegata, która obs³u¿y takie zapytanie 
 app.MapPost("update", async (MyBoardsContext db) =>
     {

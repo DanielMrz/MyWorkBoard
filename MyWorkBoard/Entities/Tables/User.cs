@@ -8,10 +8,10 @@
         public string Email { get; set; }
 
         // Relacje
-        public Address Address { get; set; }
+        public virtual Address Address { get; set; }
         // Każdy twórca może mieć wiele workitemów
-        public List<WorkItem> WorkItems { get; set; } = new List<WorkItem>();
+        public virtual List<WorkItem> WorkItems { get; set; } = new List<WorkItem>();
         // Każdy twórca może zamieszczać wiele komentarzy
-        public List<Comment> Comments { get; set; } = new List<Comment>();
+        public virtual List<Comment> Comments { get; set; } = new List<Comment>();
     }
 }

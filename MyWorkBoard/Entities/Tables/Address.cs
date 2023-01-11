@@ -12,7 +12,7 @@ namespace MyWorkBoard.Entities.Tables
 
         // Relacje 1-1 gdzie kluczem głównym jest Id w tabeli user
         // Kluczem obcym jest id w address
-        public User User { get; set; }
+        public virtual User User { get; set; }
         public Guid UserId { get; set; }
 
         public Coordinate Coordinate { get; set; }

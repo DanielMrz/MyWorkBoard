@@ -12,6 +12,6 @@
         // W entity od .net5
 
         // public List<WorkItemTag> WorkItemTags { get; set; } = new List<WorkItemTag>();
-        public List<WorkItem> WorkItems { get; set; }
+        public virtual List<WorkItem> WorkItems { get; set; }
     }
 }

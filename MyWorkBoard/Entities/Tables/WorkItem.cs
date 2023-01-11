@@ -28,7 +28,7 @@ namespace MyWorkBoard.Entities.Tables
         public int Id { get; set; } // Klucz główny, bez adnotacji bo domyślnie entity uzywa id
 
         // Relacje State
-        public State State { get; set; } // Wydzielilismy stan do nowo utworzonej encji
+        public virtual State State { get; set; } // Wydzielilismy stan do nowo utworzonej encji
         public int StateId { get; set; } // Referencje Klucza obcego
 
         // [Column(TypeName = "varchar(200)")] // zmiana typu
@@ -40,17 +40,17 @@ namespace MyWorkBoard.Entities.Tables
 
         // Relacje Comment
         // Kazdy workitem będzie miał relacje do wielu komentarzy
-        public List<Comment> Comments { get; set; } = new List<Comment>();
+        public virtual List<Comment> Comments { get; set; } = new List<Comment>();
 
         // Relacje User
         // Workitem możem ieć tylko 1 twórcę
-        public User Author { get; set; }
+        public virtual User Author { get; set; }
         public Guid AuthorId { get; set; }
 
         // Relacje Tag
         // Każdy workitem może mieć wiele tagów i teraz można odnieśc się do powiązanych encji. Sposób < .net5
         // public List<WorkItemTag> WorkItemTags { get; set; } = new List<WorkItemTag>();
-        public List<Tag> Tags { get; set; }
+        public virtual List<Tag> Tags { get; set; }
 
     }
 }
